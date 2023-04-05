@@ -2,97 +2,120 @@
 #include <string>
 #include <map>
 #include "tstack.h"
-#include <map>
-#include <string>
-#include "tstack.h"
-int getPriority(char c) {
-    if (c == ')') {
-        return 1;
-    } else if (c == '(') {
-        return 0;
-    } else if (c == '+' || c == '-') {
-        return 2;
-    } else if (c == '*' || c == '/') {
-        return 3;
-    } else if (c == ' ') {
-        return -2;
-    } else {
-        return -1;
+int priority(char x) {
+    switch (x) {
+        case '(':
+            return 0;
+        case ')':
+            return 1;
+        case '+':
+            return 2;
+        case '-':
+            return 2;
+        case '*':
+            return 3;
+        case '/':
+            return 3;
+        default:
+            return -1;
     }
 }
-int getPriority4Oper(char c) {
-    if (c == '+' || c == '-') {
-        return 0;
+std::string infx2pstfx(std::string inf) {
+    std::string post;
+    int i = 0;
+    char x = inf[i];
+    char tmp = 0;
+    TStack <char, 100> stackChar;
+    while (x) {
+    int pr1;
+    pr1 = priority(x);
+    if (pr1 > -1) {
+        if ((pr1 == 0 || pr1 > priority(tmp)
+             || stackChar.isEmpty()) && x != ')') {
+            if (stackChar.isEmpty())
+            tmp = x;
+            stackChar.push(x);
+    } else if (x == ')') {
+        while (stackChar.get() != '(') {
+            post.push_back(stackChar.get());
+            post.push_back(' ');
+            stackChar.pop();
     }
-    if (c == '*' || c == '/') {
-        return 1;
+    stackChar.pop();
+    if (stackChar.isEmpty())
+    tmp = 0;
+    } else {
+        while (!stackChar.isEmpty()
+               && priority(stackChar.get()) >= pr1) {
+        post.push_back(stackChar.get());
+        post.push_back(' ');
+        stackChar.pop();
+    }
+    if (stackChar.isEmpty())
+    tmp = x;
+    stackChar.push(x);
+        }
+    } else {
+        post.push_back(x);
+        post.push_back(' ');
+    }
+    x = inf[++i];
+    }
+    while (!stackChar.isEmpty()) {
+        post.push_back(stackChar.get());
+        post.push_back(' ');
+        stackChar.pop();
+        }
+    post.erase(post.end() - 1, post.end());
+    return post;
+}
+int calculating(char oper, int n1, int n2) {
+    switch (oper) {
+        case '+':
+            return n1 + n2;
+            break;
+        case '-':
+            return n1 - n2;
+            break;
+        case '*':
+            return n1 * n2;
+            break;
+        case '/':
+        return n1 / n2;
+        break;
     }
     return 0;
 }
-std::string infx2pstfx(std::string inf) {
-    TStack<char, 100> stack1;
-    int len = 0;
-    std::string res;
-    for (int i = 0; i < inf.size(); ++i) {
-        if (-1 == getPriority(inf[i])) {
-            res += inf[i];
-            res += ' ';
-        }
-        if (getPriority(inf[i]) == 2 || getPriority(inf[i]) == 3) {
-            while (!stack1.isEmpty() && getPriority(stack1.get()) != 0 &&
-                   getPriority4Oper(inf[i]) <= getPriority4Oper(stack1.get())) {
-                res += stack1.get();
-                res += ' ';
-                stack1.pop();
-            }
-            stack1.push(inf[i]);
-        }
-        if (getPriority(inf[i]) == 0) {
-            stack1.push(inf[i]);
-        }
-        if (getPriority(inf[i]) == 1) {
-            while (!stack1.isEmpty() && getPriority(stack1.get()) != 0) {
-                res += stack1.get();
-                res += ' ';
-                stack1.pop();
-            }
-            if (!stack1.isEmpty() && getPriority(stack1.get()) == 0) {
-                stack1.pop();
-            }
-        }
+int eval(std::string post) {
+    TStack <int, 100> stackInt;
+    int i = 0, rsl = 0;
+    char x = post[i];
+    while (x) {
+        if (x >= '0' && x <= '9') {
+        int insertInt = 0;
+        int y = 1;
+    while (x != ' ') {
+        insertInt += (x - 48) * y;
+        y *= 10;
+        x = post[++i];
     }
-    while (!stack1.isEmpty()) {
-        res += stack1.get();
-        res += ' ';
-        stack1.pop();
+    stackInt.push(insertInt);
+    } else {
+      char oper = x;
+        i++;
+        int n2 = stackInt.get();
+        stackInt.pop();
+        int n1 = stackInt.get();
+        stackInt.pop();
+        int rsl = calculating(oper, n1, n2);
+        stackInt.push(rsl);
     }
-    res.pop_back();
-    return res;
-}
-int eval(std::string pref) {
-    TStack<int, 100> stack2;
-    for (int i = 0; i < pref.size(); ++i) {
-        if (getPriority(pref[i]) == -1) {
-            stack2.push(pref[i] - '0');
-        }
-        if (getPriority(pref[i]) == 3 || getPriority(pref[i]) == 2) {
-            int firstDigit = stack2.get();
-            stack2.pop();
-            int secondDigit = stack2.get();
-            stack2.pop();
-            if (pref[i] == '-') {
-                stack2.push(secondDigit - firstDigit);
-            }
-            if (pref[i] == '+') {
-                stack2.push(firstDigit + secondDigit);
-            }
-            if (pref[i] == '/') {
-                stack2.push(secondDigit / firstDigit);
-            }
-            if (pref[i] == '*') {
-                stack2.push(firstDigit * secondDigit);
-            }
-        }
+    if (i < post.size())
+    x = post[++i];
+    else
+        x = 0;
     }
-    return stack2.get();
+    rsl = stackInt.get();
+    stackInt.pop();
+    return rsl;
 }
