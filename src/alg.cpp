@@ -3,21 +3,21 @@
 #include <map>
 #include "tstack.h"
 int priority(char x) {
-    switch (x) {
-        case '(':
-            return 0;
-        case ')':
-            return 1;
-        case '+':
-            return 2;
-        case '-':
-            return 2;
-        case '*':
-            return 3;
-        case '/':
-            return 3;
-        default:
-            return -1;
+  switch (x) {
+    case '(':
+      return 0;
+    case ')':
+      return 1;
+    case '+':
+      return 2;
+    case '-':
+      return 2;
+    case '*':
+      return 3;
+    case '/':
+      return 3;
+    default:
+      return -1;
     }
 }
 std::string infx2pstfx(std::string inf) {
@@ -30,30 +30,28 @@ std::string infx2pstfx(std::string inf) {
     int pr1;
     pr1 = priority(x);
     if (pr1 > -1) {
-        if ((pr1 == 0 || pr1 > priority(tmp)
-             || stackChar.isEmpty()) && x != ')') {
-            if (stackChar.isEmpty())
+      if ((pr1 == 0 || pr1 > priority(tmp) || stackChar.isEmpty()) && x != ')') {
+          if (stackChar.isEmpty())
             tmp = x;
             stackChar.push(x);
     } else if (x == ')') {
         while (stackChar.get() != '(') {
-            post.push_back(stackChar.get());
-            post.push_back(' ');
-            stackChar.pop();
+          post.push_back(stackChar.get());
+          post.push_back(' ');
+          stackChar.pop();
     }
-    stackChar.pop();
-    if (stackChar.isEmpty())
-    tmp = 0;
+      stackChar.pop();
+      if (stackChar.isEmpty())
+        tmp = 0;
     } else {
-        while (!stackChar.isEmpty()
-               && priority(stackChar.get()) >= pr1) {
-        post.push_back(stackChar.get());
-        post.push_back(' ');
-        stackChar.pop();
+        while (!stackChar.isEmpty() && priority(stackChar.get()) >= pr1) {
+          post.push_back(stackChar.get());
+          post.push_back(' ');
+          stackChar.pop();
     }
     if (stackChar.isEmpty())
-    tmp = x;
-    stackChar.push(x);
+      tmp = x;
+      stackChar.push(x);
         }
     } else {
         post.push_back(x);
@@ -71,16 +69,16 @@ std::string infx2pstfx(std::string inf) {
 }
 int calculating(char oper, int n1, int n2) {
     switch (oper) {
-        case '+':
-            return n1 + n2;
-            break;
-        case '-':
-            return n1 - n2;
-            break;
-        case '*':
-            return n1 * n2;
-            break;
-        case '/':
+      case '+':
+        return n1 + n2;
+        break;
+      case '-':
+        return n1 - n2;
+        break;
+      case '*':
+        return n1 * n2;
+        break;
+      case '/':
         return n1 / n2;
         break;
     }
@@ -91,15 +89,15 @@ int eval(std::string post) {
     int i = 0, rsl = 0;
     char x = post[i];
     while (x) {
-        if (x >= '0' && x <= '9') {
-        int insertInt = 0;
-        int y = 1;
+      if (x >= '0' && x <= '9') {
+      int insertInt = 0;
+      int y = 1;
     while (x != ' ') {
-        insertInt += (x - 48) * y;
-        y *= 10;
-        x = post[++i];
+      inInt += (x - 48) * y;
+      y *= 10;
+      x = post[++i];
     }
-    stackInt.push(insertInt);
+    stackInt.push(inInt);
     } else {
       char oper = x;
         i++;
