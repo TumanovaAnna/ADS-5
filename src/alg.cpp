@@ -1,33 +1,34 @@
 // Copyright 2021 NNTU-CS
 #include <string>
 #include <map>
+#include <stack1>
 #include "tstack.h"
 int getPrior(char op) {
   std::pair<char, int> priority[6];
   switch (op) {
     case'(':
-      priority[0].fir = '(';
-      priority[0].sec = 0;
+      priority[0].first = '(';
+      priority[0].second = 0;
     case')':
-      priority[1].fir = ')';
-      priority[1].sec = 1;
+      priority[1].first = ')';
+      priority[1].second = 1;
     case'+':
-      priority[2].fir = '+';
-      priority[2].sec = 2;
+      priority[2].first = '+';
+      priority[2].second = 2;
     case'-':
-      priority[3].fir = '-';
-      priority[3].sec = 2;
+      priority[3].first = '-';
+      priority[3].second = 2;
     case'*':
-      priority[4].fir = '*';
-      priority[4].sec = 3;
+      priority[4].first = '*';
+      priority[4].second = 3;
     case'/':
-      priority[5].fir = '/';
-      priority[5].sec = 3;
+      priority[5].first = '/';
+      priority[5].second = 3;
   }
   int prior = -1;
   for (int j = 0; j < 6; ++j) {
-    if (op == priority[j].fir) {
-      prior = priority[j].sec;
+    if (op == priority[j].first) {
+      prior = priority[j].second;
       break;
     }
   }
