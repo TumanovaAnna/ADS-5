@@ -1,34 +1,34 @@
 // Copyright 2021 NNTU-CS
 #include <string>
 #include <map>
-#include <stack1>
 #include "tstack.h"
+
 int getPrior(char op) {
-  std::pair<char, int> priority[6];
+  std::pair<char, int> prior1[6];
   switch (op) {
     case'(':
-      priority[0].first = '(';
-      priority[0].second = 0;
+      prior1[0].first = '(';
+      prior1[0].second = 0;
     case')':
-      priority[1].first = ')';
-      priority[1].second = 1;
+      prior1[1].first = ')';
+      prior1[1].second = 1;
     case'+':
-      priority[2].first = '+';
-      priority[2].second = 2;
+      prior1[2].first = '+';
+      prior1[2].second = 2;
     case'-':
-      priority[3].first = '-';
-      priority[3].second = 2;
+      prior1[3].first = '-';
+      prior1[3].second = 2;
     case'*':
-      priority[4].first = '*';
-      priority[4].second = 3;
+      prior1[4].first = '*';
+      prior1[4].second = 3;
     case'/':
-      priority[5].first = '/';
-      priority[5].second = 3;
+      prior1[5].first = '/';
+      prior1[5].second = 3;
   }
   int prior = -1;
   for (int j = 0; j < 6; ++j) {
-    if (op == priority[j].first) {
-      prior = priority[j].second;
+    if (op == prior1[j].first) {
+      prior = prior1[j].second;
       break;
     }
   }
@@ -45,7 +45,7 @@ std::string spc(const std::string& s) {
 }
 std::string infx2pstfx(std::string inf) {
   std::string work;
-  TStack<char, 100> stack1;
+  TStack <char, 100> stack1;
   for (auto& op : inf) {
     int prior = getPrior(op);
     if (prior == -1) {
