@@ -2,115 +2,84 @@
 #include <string>
 #include <map>
 #include "tstack.h"
-int getPrior(char op) {
-  std::pair<char, int> priority[6];
-  switch (op) {
-    case'(':
-      priority[0].first = '(';
-      priority[0].second = 0;
-    case')':
-      priority[1].first = ')';
-      priority[1].second = 1;
-    case'+':
-      priority[2].first = '+';
-      priority[2].second = 2;
-    case'-':
-      priority[3].first = '-';
-      priority[3].second = 2;
-    case'*':
-      priority[4].first = '*';
-      priority[4].second = 3;
-    case'/':
-      priority[5].first = '/';
-      priority[5].second = 3;
-  }
-  int prior = -1;
-  for (int j = 0; j < 6; ++j) {
-    if (op == priority[j].first) {
-      prior = priority[j].second;
-      break;
-    }
-  }
-  return prior;
+
+int prior(char a) {
+  if (a == '(')
+    return 0;
+  else if (a == ')')
+    return 1;
+  else if (a == '-' || a == '+')
+    return 2;
+  else if (a == '/' || a == '*')
+    return 3;
+  else
+    return -1;
 }
-std::string spc(const std::string& s) {
-  if (s.length() <= 2) return s;
-  int n = 2 - s.length() % 2;
-  std::string r(s, 0, n);
-  for (auto it = s.begin() + n; it != s.end();) {
-    r += ' '; r += *it++;;
-  }
-  return r;
+
+int number(char a) {
+  return (a <= '9' && a >= '0');
 }
+
+int oper(char a) {
+  return (a == '-' || a == '+' || a == '/' || a == '*');
+}
+
 std::string infx2pstfx(std::string inf) {
-  std::string work;
   TStack<char, 100> stack1;
-  for (auto& op : inf) {
-    int prior = getPrior(op);
-    if (prior == -1) {
-      work += op;
-    } else {
-      if (stack1.get() < prior || prior == 0 || stack1.isEmpty()) {
-        stack1.push(op);
-      } else if (op == ')') {
-        char sm = stack1.get();
-        while (getPrior(sm) >= prior) {
-          work += sm;
-          stack1.pop();
-          sm = stack1.get();
-        }
+  std::string str = "";
+  for (int i = 0; i < inf.length(); i++) {
+    if (number(inf[i])) {
+      str += inf[i];
+      str += " ";
+    } else if (inf[i] == '(') {
+      stack1.push(inf[i]);
+    } else if (inf[i] == ')') {
+      while (!stack1.isEmpty() && stack1.get() != '(') {
+        str += stack1.get();
+        str += " ";
         stack1.pop();
-      } else {
-        char sm = stack1.get();
-        while (getPrior(sm) >= prior) {
-          work += sm;
-          stack1.pop();
-          sm = stack1.get();
-        }
-        stack1.push(op);
       }
+      stack1.pop();
+    } else if (oper(inf[i])) {
+      while (!stack1.isEmpty() && prior(inf[i]) <= prior(stack1.get())) {
+        str += stack1.get();
+        str += " ";
+        stack1.pop();
+      }
+      stack1.push(inf[i]);
     }
   }
   while (!stack1.isEmpty()) {
-    work += stack1.get();
+    str += stack1.get();
+    str += " ";
     stack1.pop();
   }
-  work = spc(work);
-  return work;
+  str.erase(str.length() - 1);
+    return str;
 }
-int count(const int& a, const int& b, const int& oper) {
-  switch (oper) {
-    default:
-      break;
-    case'+': return a + b;
-    case'-': return a - b;
-    case'*': return a * b;
-    case'/': return a / b;
-  }
-  return 0;
-}
-int eval(std::string pref) {
-  TStack<int, 100> stack1;
-  std::string num = "";
-  for (size_t i = 0; i < pref.size(); i++) {
-    if (getPrior(pref[i]) == -1) {
-      if (pref[i] == ' ') {
-        continue;
-      } else if (isdigit(pref[i+1])) {
-        num += pref[i];
-        continue;
-      } else {
-        num += pref[i];
-        stack1.push(atoi(num.c_str()));
-        num = "";
+int eval(std::string post) {
+  TStack<int, 100> stack2;
+  for (int i = 0; i < post.length(); i++) {
+    if (post[i] == ' ') {
+      continue;
+    } else if (number(post[i])) {
+      int n = post[i] - '0';
+      stack2.push(n);
+    } else if (oper(post[i])) {
+      int n2 = stack2.get();
+      stack2.pop();
+      int n1 = stack2.get();
+      stack2.pop();
+      if (post[i] == '-') {
+        stack2.push(n1 - n2);
+      } else if (post[i] == '+') {
+        stack2.push(n1 + n2);
+      } else if (post[i] == '/') {
+        stack2.push(n1 / n2);
+      } else if (post[i] == '*') {
+        stack2.push(n1 * n2);
       }
-    } else {
-      int b = stack1.get();
-      stack1.pop();
-      int a = stack1.get();
-      stack1.pop();
-      stack1.push(count(a, b, pref[i]));
     }
   }
-  return stack1.get();
+  return stack2.get();
 }
